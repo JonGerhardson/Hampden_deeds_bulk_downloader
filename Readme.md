@@ -4,8 +4,7 @@ As a bonus it uses Playwright in non-headless mode, forcing you to go take a bre
 
 ### Quickstart
 ```
-git clone 
-https://github.com/JonGerhardson/Hampden_deeds_bulk_downloader
+git clone https://github.com/JonGerhardson/Hampden_deeds_bulk_downloader
 ```
 ```
 cd Hampden_deeds_bulk_downloader
@@ -71,7 +70,8 @@ Features
 How to Use
 
 The script has three main modes of operation.
-Mode 1: Process a Single URL
+
+### Mode 1: Process a Single URL
 
 Provide a single search results URL as a command-line argument.
 
@@ -84,30 +84,28 @@ Example:
 python deeds_scraper.py "url"
 ```
 This will create final_output/document_set_1_OCR.pdf and a folder final_output/document_set_1_TIFs/.
-Mode 2: Process a CSV File
+
+### Mode 2: Process a CSV File
+
 
 Provide a CSV file that contains a column named URL. The script will process each URL from that column.
 
 Usage:
-
+```
 python deeds_scraper.py -i <your_file.csv>
-
-Example:
-
-python deeds_scraper.py -i takings_with_urls.csv
+```
 
 This will loop through each URL in the CSV, creating a separate PDF and TIF folder for each one (e.g., document_set_1_OCR.pdf, document_set_2_OCR.pdf, etc.).
-Mode 3: Generate URLs in a CSV (Pre-processing)
+
+### Mode 3: Generate URLs in a CSV (Pre-processing)
+
 
 If you have a CSV with a Property Address column, this mode will generate the search URLs and add them to a new search_registry_url column. This modifies your CSV file in-place.
 
 Usage:
-
+```
 python deeds_scraper.py -i <your_file.csv> --generate-urls
-
-Example:
-
-python deeds_scraper.py -i takings.csv --generate-urls
+```
 
 After running this, your takings.csv will be ready to use in Mode 2.
 Output Structure
