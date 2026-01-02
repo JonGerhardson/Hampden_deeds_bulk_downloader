@@ -1,117 +1,78 @@
-Unlike practicaly every other county registry of deeds website in Massachusetts, hampdendeeds.com does not allow users to download multiple records at one go, making research involving more than just a few documents tedious and time consuming. Even worse, the files are only provided as TIF images, not pdfs with text. This python script takes eithher a single url of search results, or a csv with urls as an input, and automatically downloads all records linked fromn that page, then OCRs the image files and combines them into a single searchable pdf. 
+This script automates the retrieval of property deed documents from the Hampden and Hampshire County (Massachusetts) registries, downloads the images, and merges them into OCR-processed, text-searchable PDF files.
+Setup
 
-As a bonus it uses Playwright in non-headless mode, forcing you to go take a break while it runs. 
+Prerequisites
 
-### Quickstart
-```
-git clone https://github.com/JonGerhardson/Hampden_deeds_bulk_downloader
-```
-```
-cd Hampden_deeds_bulk_downloader
-```
+    Python 3.8+
 
-**Install dependencies**
+    Tesseract OCR (Required for PDF generation)
 
+        macOS: brew install tesseract
 
+        Ubuntu/Debian: sudo apt install tesseract-ocr
 
+        Windows: Install the Tesseract binary and ensure it is in your system PATH.
 
-This script depends on the Tesseract OCR engine. You MUST install it on your system for the OCR step to work.
+Installation
 
-Windows: Download and run the installer from Tesseract. Make sure to check the option to add Tesseract to your system's PATH during installation.
+    Clone or download this repository.
 
-macOS (using Homebrew):
+    Install the required Python packages:
+    Bash
 
-    brew install tesseract
-    
- Linux (Debian/Ubuntu):
+pip install playwright ocrmypdf pillow requests
 
-    sudo apt-get install tesseract-ocr
+Install the Playwright browser binaries:
+Bash
 
-Install Python Libraries: Open a terminal or command prompt in your project folder and run:
+    playwright install chromium
 
-    pip install -r requirements.txt
+Usage
 
-Install Playwright Browsers: This only needs to be done once.
+Run the script from the command line using one of the following modes.
 
-    playwright install
+Mode 1: Search by Name (Hampshire or Hampden) Searches the registry for a specific name, downloads all associated documents, and processes them.
+Bash
 
-**Usage (single url)**
+# Hampshire County Search
+```python deeds_scraper.py --county hampshire --name "EXAMPLE CORP"```
 
-Go to Hampdendeeds.com and search their records for whatever you are looking for. To avoid extraneous downloads, tailor your search as narowly as possible. For example, check the box that only returns records since 2020 if you only need recent documents. 
+# Hampden County Search
+```python deeds_scraper.py --county hampden --name "DOE" --first-name "JOHN"```
 
-In this directory open a terminal and run 
-```
-python deeds_scraper.py 'search url here'
-```
+Mode 2: Single URL Scrape (Hampden Only) Scrapes all documents found at a specific Hampden registry search result URL.
+Bash
 
-The script will then open an automated browser window and begin downloading the tif files from each listed search result until there are no more results. After it reaches the end, it will combine the images into a single pdf and run tesseract OCR on the file. 
+```python deeds_scraper.py "https://search.hampdendeeds.com/ALIS/WW400R.HTM?W9SNM=EXAMPLE..."```
 
-**It's not working!**
-Make sure the url from hampden deeds is in quotation marks. 
+Mode 3: Batch Processing via CSV Reads a CSV file containing property addresses, generates search URLs, and downloads documents for each row.
 
-MIT licensed. Don't use this for anything shady. Don't blame me if anything breaks. 
+    Prepare Input: Create a CSV file (e.g., input.csv) with a column named Property Address.
 
-# A more in-depth but AI generated readme is below use at own risk for more advanced features 
-This command-line tool automates a complete web scraping and document processing workflow for a county registry of deeds website.
-Features
+    Generate URLs:
+    Bash
 
-    Multi-Mode Input: Process a single starting URL or a CSV file containing multiple URLs.
+python deeds_scraper.py -i input.csv --generate-urls
 
-    Automatic Pagination: The scraper automatically clicks through all "Next" pages to find and download every document in a search result.
+Process Downloads:
+Bash
 
-    File Combination: All TIF images downloaded from a single starting URL are combined into one document.
+    ```python deeds_scraper.py -i input.csv```
 
-    OCR Integration: The combined document is processed with OCR (Optical Character Recognition) to create a fully searchable PDF.
+Arguments
 
-    Organized Output: The final output includes the searchable PDF and a separate folder containing all the original TIF files for each run.
+    url: The target URL for scraping (Hampden only).
 
-    URL Generation Utility: Includes a pre-processing mode to enrich a CSV file with property addresses by generating the correct search URLs.
+    --county: Selects the registry system (hampden or hampshire). Default: hampden.
 
-How to Use
+    --name: The last name or business name to search.
 
-The script has three main modes of operation.
+    --first-name: (Optional) The first name to refine the search.
 
-### Mode 1: Process a Single URL
+    -i, --input-file: Path to the input CSV file.
 
-Provide a single search results URL as a command-line argument.
+    --generate-urls: Updates the input CSV with search URLs based on addresses.
 
-Usage:
+    --list-only: Lists found documents without downloading (Hampshire only).
 
-python deeds_scraper.py "https://your_starting_search_url_here.com"
-
-Example:
-```
-python deeds_scraper.py "url"
-```
-This will create final_output/document_set_1_OCR.pdf and a folder final_output/document_set_1_TIFs/.
-
-### Mode 2: Process a CSV File
-
-
-Provide a CSV file that contains a column named URL. The script will process each URL from that column.
-
-Usage:
-```
-python deeds_scraper.py -i <your_file.csv>
-```
-
-This will loop through each URL in the CSV, creating a separate PDF and TIF folder for each one (e.g., document_set_1_OCR.pdf, document_set_2_OCR.pdf, etc.).
-
-### Mode 3: Generate URLs in a CSV (Pre-processing)
-
-
-If you have a CSV with a Property Address column, this mode will generate the search URLs and add them to a new search_registry_url column. This modifies your CSV file in-place.
-
-Usage:
-```
-python deeds_scraper.py -i <your_file.csv> --generate-urls
-```
-
-After running this, your takings.csv will be ready to use in Mode 2.
-Output Structure
-
-All final files will be placed in a final_output directory. For each input URL processed, you will get:
-
-    A searchable PDF: document_set_1_OCR.pdf
-
-    A folder with the original images: document_set_1_TIFs/
+Output Processed files are saved to the final_output directory.
